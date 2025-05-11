@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { 
   View, 
   Text, 
@@ -30,7 +30,7 @@ export default function WelcomeScreen() {
   const { width } = useWindowDimensions();
   
   const scrollViewRef = useRef<ScrollView>(null);
-  const currentPage = useSharedValue(0);
+  const [currentPage, setCurrentPage] = useState(0);
   
   // Background opacity animation
   const backgroundOpacity = useSharedValue(0);
@@ -65,31 +65,27 @@ export default function WelcomeScreen() {
   ];
 
   // Handle page change
-  const handleScroll = Platform.select({
-    web: (event: any) => {
-      // On web, update the page based on the scroll event's contentOffset.x
-      const offsetX = event.nativeEvent?.contentOffset?.x ?? 0;
-      const page = Math.round(offsetX / width);
-      currentPage.value = page;
-    },
-    default: (event: any) => {
-      const offsetX = event.nativeEvent.contentOffset.x;
-      const page = Math.round(offsetX / width);
-      currentPage.value = page;
-    },
-  });
+  const handleScroll = (event: any) => {
+  const offsetX = event.nativeEvent.contentOffset.x;
+  const page = Math.round(offsetX / width);
+  setCurrentPage(page);
+};
+  
   
   // Navigate to the next page or to the main app
-  const handleNext = () => {
-    if (currentPage.value < pages.length - 1) {
-      scrollViewRef.current?.scrollTo({
-        x: width * (currentPage.value + 1),
-        animated: true,
-      });
-    } else {
-      router.replace('/(tabs)');
-    }
-  };
+const handleNext = () => {
+  if (currentPage < pages.length - 1) {
+    const nextPage = currentPage + 1;
+    scrollViewRef.current?.scrollTo({
+      x: width * nextPage,
+      animated: true,
+    });
+    setCurrentPage(nextPage);
+  } else {
+    router.replace('/(tabs)');
+  }
+};
+  
   
   // Skip onboarding and go to main app
   const handleSkip = () => {
@@ -164,18 +160,19 @@ export default function WelcomeScreen() {
       
       {/* Pagination Indicators */}
       <View style={styles.pagination}>
-        {pages.map((_, index) => (
-          <Animated.View
-            key={index}
-            style={[
-              styles.paginationDot,
-              {
-                backgroundColor: currentPage.value === index ? colors.primary : colors.border,
-                width: currentPage.value === index ? 20 : 8,
-              },
-            ]}
-          />
-        ))}
+      {pages.map((_, index) => (
+        <Animated.View
+          key={index}
+          style={[
+            styles.paginationDot,
+            {
+              backgroundColor: currentPage === index ? colors.primary : colors.border,
+              width: currentPage === index ? 20 : 8,
+            },
+          ]}
+        />
+      ))}
+      
       </View>
       
       {/* Action Buttons */}
@@ -191,7 +188,7 @@ export default function WelcomeScreen() {
         />
         
         <Button
-          title={currentPage.value === pages.length - 1 ? "Get Started" : "Next"}
+          title={currentPage === pages.length - 1 ? "Get Started" : "Next"}
           variant="primary"
           onPress={handleNext}
           style={styles.nextButton}
