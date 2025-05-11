@@ -21,9 +21,22 @@
       "output": "single",
       "favicon": "./assets/images/favicon.png"
     },
-    "plugins": ["expo-router", "expo-font", "expo-web-browser"],
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      "expo-web-browser"
+    ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "0a787465-4dfd-47d7-b6bf-55ae04547a28"
+      }
+    },
+    "android": {
+      "package": "com.bhankid.edusave"
     }
   }
 }
